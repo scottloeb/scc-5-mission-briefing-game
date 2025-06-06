@@ -911,7 +911,7 @@
             const videoDiv = document.createElement('div');
             videoDiv.className = 'video-container';
             videoDiv.innerHTML = `
-                <a href="#" class="video-link" id="video-link">🎬 FINAL TRANSMISSION - WATCH MISSION SUCCESS</a>
+                <a href="assets/mission-success-video.mp4" class="video-link" id="video-link" target="_blank">🎬 FINAL TRANSMISSION - WATCH MISSION SUCCESS</a>
             `;
             
             pageContent.appendChild(videoDiv);
@@ -1041,8 +1041,7 @@
         });
 
         document.getElementById('final-link').addEventListener('click', function() {
-            // Placeholder for "Behind the Scenes" link
-            alert('Behind the Scenes link will be added here!');
+            window.open('https://scc-true-story.vercel.app', '_blank');
         });
 
         // Prevent page refresh cheating
