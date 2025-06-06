@@ -208,6 +208,42 @@
             border-left: 4px solid #dc143c;
             border-radius: 5px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+        
+        .paragraph-text {
+            flex: 1;
+        }
+        
+        .paragraph-media {
+            flex: 0 0 300px;
+            max-width: 300px;
+        }
+        
+        .paragraph-media img {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+            border: 2px solid #8b4513;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        .paragraph-media video {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+            border: 2px solid #8b4513;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        .media-caption {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            margin-top: 5px;
+            font-style: italic;
         }
         
         .paragraph-header {
@@ -352,41 +388,52 @@
         
         /* Mobile responsiveness */
         @media (max-width: 768px) {
-            .dossier-container {
-                width: 95vw;
-                height: 90vh;
+        .dossier-container {
+        width: 95vw;
+        height: 90vh;
+        }
+        
+        .cover-content {
+        padding: 20px;
+        max-width: 90%;
+        }
+        
+        .cover-title {
+        font-size: 18px;
+        }
+        
+        .cover-details {
+        font-size: 12px;
+        }
+        
+        .page-content {
+        padding: 20px;
+        font-size: 14px;
+        }
+        
+        .tab {
+        width: 60px;
+        height: 50px;
+        font-size: 10px;
+        }
+        
+        .tab.active {
+        width: 65px;
+        }
+        
+        .page-content {
+        width: calc(100% - 80px);
+        }
+            
+            .paragraph {
+                flex-direction: column;
             }
             
-            .cover-content {
-                padding: 20px;
-                max-width: 90%;
-            }
-            
-            .cover-title {
-                font-size: 18px;
-            }
-            
-            .cover-details {
-                font-size: 12px;
-            }
-            
-            .page-content {
-                padding: 20px;
-                font-size: 14px;
-            }
-            
-            .tab {
-                width: 60px;
-                height: 50px;
-                font-size: 10px;
-            }
-            
-            .tab.active {
-                width: 65px;
-            }
-            
-            .page-content {
-                width: calc(100% - 80px);
+            .paragraph-media {
+                flex: none;
+                max-width: 100%;
+                order: -1;
+                margin-bottom: 15px;
             }
         }
     </style>
@@ -457,6 +504,17 @@
             unlockedPages: [0],
             isTyping: false,
             videoWatched: false
+        };
+
+        // Media mapping for paragraphs
+        const mediaMappings = {
+            "0-1": { type: "image", src: "assets/IMG_1849.jpeg", caption: "Target location surveillance" },
+            "0-2": { type: "image", src: "assets/IMG_1850.jpeg", caption: "Priority access secured" },
+            "0-3": { type: "video", src: "assets/IMG_1853.mov", caption: "Final countdown operations" },
+            "2-1": { type: "image", src: "assets/IMG_1866.jpeg", caption: "Target store reconnaissance" },
+            "2-2": { type: "image", src: "assets/IMG_1867.jpeg", caption: "Gaming section devastation" },
+            "3-2": { type: "image", src: "assets/IMG_1862.jpeg", caption: "Store infiltration successful" },
+            "video-link": { type: "video", src: "assets/IMG_1864.mov", caption: "Mission success transmission" }
         };
 
         // Story content
@@ -873,17 +931,48 @@
             
             const paragraphDiv = document.createElement('div');
             paragraphDiv.className = 'paragraph';
+            
+            // Check if this paragraph has associated media
+            const mediaKey = `${pageIndex}-${paragraphIndex}`;
+            const mediaData = mediaMappings[mediaKey];
+            
+            let mediaHTML = '';
+            if (mediaData) {
+                if (mediaData.type === 'image') {
+                    mediaHTML = `
+                        <div class="paragraph-media">
+                            <img src="${mediaData.src}" alt="Mission evidence">
+                            <div class="media-caption">${mediaData.caption}</div>
+                        </div>
+                    `;
+                } else if (mediaData.type === 'video') {
+                    mediaHTML = `
+                        <div class="paragraph-media">
+                            <video controls>
+                                <source src="${mediaData.src}" type="video/quicktime">
+                                <source src="${mediaData.src}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                            <div class="media-caption">${mediaData.caption}</div>
+                        </div>
+                    `;
+                }
+            }
+            
             paragraphDiv.innerHTML = `
-                <div class="paragraph-header">${paragraph.header}</div>
-                <div style="font-weight: bold; color: #dc143c; margin-bottom: 15px;">${paragraph.subheader}</div>
-                <div class="typed-content"></div>
+                <div class="paragraph-text">
+                    <div class="paragraph-header">${paragraph.header}</div>
+                    <div style="font-weight: bold; color: #dc143c; margin-bottom: 15px;">${paragraph.subheader}</div>
+                    <div class="typed-content"></div>
+                </div>
+                ${mediaHTML}
             `;
             
             pageContent.appendChild(paragraphDiv);
             
             const typedContent = paragraphDiv.querySelector('.typed-content');
             
-            typewriterEffect(typedContent, paragraph.content, 20000, () => {
+            typewriterEffect(typedContent, paragraph.content, 10000, () => {
                 // Special handling for Page 4
                 if (pageIndex === 3) {
                     // Page 4: No questions, continue to next paragraph or show video
@@ -911,14 +1000,19 @@
             const videoDiv = document.createElement('div');
             videoDiv.className = 'video-container';
             videoDiv.innerHTML = `
-                <a href="assets/mission-success-video.mp4" class="video-link" id="video-link" target="_blank">🎬 FINAL TRANSMISSION - WATCH MISSION SUCCESS</a>
+                <video controls style="width: 100%; max-width: 400px; border: 2px solid #8b4513; border-radius: 5px;">
+                    <source src="assets/IMG_1864.mov" type="video/quicktime">
+                    <source src="assets/IMG_1864.mov" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div style="text-align: center; margin-top: 10px; font-weight: bold; color: #dc143c;">🎬 FINAL TRANSMISSION - MISSION SUCCESS</div>
             `;
             
             pageContent.appendChild(videoDiv);
             
-            document.getElementById('video-link').addEventListener('click', function(e) {
-                e.preventDefault();
-                // Simulate video watching
+            const video = videoDiv.querySelector('video');
+            video.addEventListener('ended', function() {
+                // Video finished watching
                 gameState.videoWatched = true;
                 videoDiv.remove();
                 
@@ -949,17 +1043,33 @@
                         
                         const paragraphDiv = document.createElement('div');
                         paragraphDiv.className = 'paragraph';
+                        
+                        // Check for media for final paragraphs
+                        let mediaHTML = '';
+                        if (paragraphIndex === 0) {
+                            // Mission accomplished paragraph gets the success images
+                            mediaHTML = `
+                                <div class="paragraph-media">
+                                    <img src="assets/IMG_1863.jpeg" alt="Mission accomplished">
+                                    <div class="media-caption">Target device acquired</div>
+                                </div>
+                            `;
+                        }
+                        
                         paragraphDiv.innerHTML = `
-                            <div class="paragraph-header">${paragraph.header}</div>
-                            <div style="font-weight: bold; color: #dc143c; margin-bottom: 15px;">${paragraph.subheader}</div>
-                            <div class="typed-content"></div>
+                            <div class="paragraph-text">
+                                <div class="paragraph-header">${paragraph.header}</div>
+                                <div style="font-weight: bold; color: #dc143c; margin-bottom: 15px;">${paragraph.subheader}</div>
+                                <div class="typed-content"></div>
+                            </div>
+                            ${mediaHTML}
                         `;
                         
                         pageContent.appendChild(paragraphDiv);
                         
                         const typedContent = paragraphDiv.querySelector('.typed-content');
                         
-                        typewriterEffect(typedContent, paragraph.content, 1667, () => {
+                        typewriterEffect(typedContent, paragraph.content, 834, () => {
                             paragraphIndex++;
                             setTimeout(typeRemainingParagraphs, 500);
                         });
